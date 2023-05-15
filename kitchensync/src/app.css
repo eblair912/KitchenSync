@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap');
+
+:root {
+    --font-family: 'Roboto', sans-serif;
+    --main-bg-color: white;
+    --secondary-bg-color: black;
+    --primary-color: black;
+    --secondary-color: white;
+    --unfocused-color: rgba(109, 109, 109, 0.3);
+    --accent-color: rgba(109, 109, 109, 1);
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+}
+
+
+.main-container {
+    display: flex;
+    height: 100vh;
+    padding: 0 10rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.block-centered {
+    display: block;
+    margin: auto;
+    text-align: center;
+}
+
+.primary-button {
+    background: var(--secondary-bg-color);
+    color: var(--secondary-color);
+    font-size: medium;
+    border: .1rem solid black;
+    border-radius: .2rem;
+    padding: 1rem 2rem;
+    font-family: var(--font-family);
+    transition: 0.3s;
+}
+
+.primary-button:hover {
+    cursor: pointer;
+    opacity: .9;
+}
+
+.list-item-container {
+    display: flex;
+    width: 60vw;
+    justify-content: center; 
+    margin: auto;
+    margin-top: 1rem;
+    animation: fadeIn .3s;
+}
+
+.list-item-text {
+    width: 70%;
+    max-width: 500px;
+    float: left;
+    border: 1px solid var(--unfocused-color);
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    line-height: 1rem;
+    padding: .2rem;
+    font-family: var(--font-family);
+    font-size: medium;
+    font-weight: 600;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    caret-color: transparent;
+}
+
+.list-item-text::placeholder {
+    opacity: .5;
+}
+
+.list-item-container:focus-within .styled-checkbox {
+    background-color: rgba(109, 109, 109, 0.2) !important;
+    opacity: 1 !important;
+}
+
+.list-item-text:active, .list-item-text:focus {
+    border: 1px solid rgba(109, 109, 109, 0.5);
+    border-radius: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    outline: none;
+}
+
+.parent-list {
+    margin-top: 1rem;
+}
