@@ -1,9 +1,10 @@
 <script>
     export let checked;
+	export let checkChanged;
 </script>
 
 <div class="custom-checkbox">
-	<input type="checkbox" id="checkbox" class="hidden-checkbox" bind:checked={checked}/>
+	<input type="checkbox" id="checkbox" class="hidden-checkbox" bind:checked={checked} on:click={checkChanged} />
 	<label for="checkbox" class="styled-checkbox" />
 </div>
 
