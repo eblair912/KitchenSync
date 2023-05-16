@@ -1,13 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Montserrat:wght@100;200;300;400;500;600;700;800&family=Roboto:wght@100;300;400;500;700&display=swap');
 
 :root {
-    --font-family: 'Roboto', sans-serif;
-    --main-bg-color: white;
-    --secondary-bg-color: black;
-    --primary-color: black;
-    --secondary-color: white;
-    --unfocused-color: rgba(109, 109, 109, 0.3);
-    --accent-color: rgba(109, 109, 109, 1);
+    --font-family: 'Montserrat', sans-serif;
+    --main-bg-color: rgb(255, 255, 255);
+    --secondary-bg-color: rgb(0, 0, 0);
+    --primary-color: rgb(0, 0, 0);
+    --secondary-color: rgb(255, 255, 255);
+    --unfocused-color: rgba(0, 0, 0, 0.3);
+    --focused-color: rgba(0, 0, 0, 0.5);
+    --accent-color: rgb(0, 0, 0);
 }
 
 @keyframes fadeIn {
@@ -15,13 +16,66 @@
     100% {opacity: 1;}
 }
 
+@keyframes strike {
+    0% {width: 0;}
+    100% {width: 87vw;}
+}
+
+@keyframes shake {
+    0% {transform: rotate(0deg);}
+    25% {transform: rotate(5deg);}
+    50% {transform: rotate(-5deg);}
+    100%{transform: rotate(0deg);}
+}
+
+body {
+    background: var(--main-bg-color);
+}
+
+.header {
+  display: flex;
+}
+
+.header-text {
+    color: var(--primary-color);
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    font-weight: 400;
+    width: 50%;
+    opacity: .6;
+    cursor: default;
+}
+
+.container {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 .8rem;
+    box-sizing: border-box;
+}
+
+.locklist-position {
+    display: flex;
+    justify-content: end;
+    width: 50%;
+}
+
+.lock-button {
+    opacity: .4;
+    transition: .3s;
+}
+
+.lock-button:hover {
+    opacity: .7;
+    transform: rotate(5deg);
+}
 
 .main-container {
     display: flex;
-    height: 100vh;
-    padding: 0 10rem;
     justify-content: center;
     align-items: center;
+    margin-top: 5rem;
+    width: inherit;
 }
 
 .block-centered {
@@ -46,20 +100,27 @@
     opacity: .9;
 }
 
+.centered-list {
+    width: fit-content;
+    margin: auto;
+}
+
 .list-item-container {
     display: flex;
-    width: 60vw;
-    justify-content: center; 
-    margin: auto;
+    width: fit-content;
+    justify-content: flex-start; 
+    align-items: center;
     margin-top: 1rem;
     animation: fadeIn .3s;
+    animation-timing-function: linear;
 }
 
 .list-item-text {
-    width: 70%;
-    max-width: 500px;
+    background: transparent;
+    width: 87vw;
+    max-width: 900px;
     float: left;
-    border: 1px solid var(--unfocused-color);
+    border: 1px dashed var(--unfocused-color);
     border-radius: 0;
     border-top: none;
     border-left: none;
@@ -67,11 +128,13 @@
     line-height: 1rem;
     padding: .2rem;
     font-family: var(--font-family);
-    font-size: medium;
+    font-size: x-large;
     font-weight: 600;
     color: var(--accent-color);
+    opacity: .7;
     text-transform: uppercase;
-    caret-color: transparent;
+    caret-color: rgba(109, 109, 109, 0.2);
+    transition: 0.3s;
 }
 
 .list-item-text::placeholder {
@@ -83,8 +146,9 @@
     opacity: 1 !important;
 }
 
+
 .list-item-text:active, .list-item-text:focus {
-    border: 1px solid rgba(109, 109, 109, 0.5);
+    border: 1px dashed var(--focused-color);
     border-radius: 0;
     border-top: none;
     border-left: none;
@@ -94,4 +158,35 @@
 
 .parent-list {
     margin-top: 1rem;
+}
+
+.delete-button {
+    background: transparent;
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    color: var(--unfocused-color);
+    transition: .3s;
+}
+
+
+.delete-button:hover {
+    color: var(--focused-color);
+    animation: shake 1s;
+}
+
+
+.checked {
+    text-decoration: line-through;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--primary-color);
+    opacity: .6;
+}
+
+.lock-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }

@@ -1,11 +1,19 @@
+<script context="module">
+    let id = 0;
+    export function generateId(){
+        return ++id;
+    }
+</script>
+
 <script>
     export let checked;
-	export let checkChanged;
+
+    let checkboxId = `checkbox-${generateId()}`;
 </script>
 
 <div class="custom-checkbox">
-	<input type="checkbox" id="checkbox" class="hidden-checkbox" bind:checked={checked} on:click={checkChanged} />
-	<label for="checkbox" class="styled-checkbox" />
+	<input type="checkbox" id={checkboxId} class="hidden-checkbox" bind:checked={checked} />
+	<label for={checkboxId} class="styled-checkbox" />
 </div>
 
 
@@ -54,7 +62,7 @@
 		top: 5px;
 		width: 5px;
 		height: 10px;
-		border: solid white;
+		border: solid var(--secondary-color);
 		border-width: 0 3px 3px 0;
 		transform: rotate(45deg);
 	}
