@@ -7,12 +7,13 @@
 
 <script>
     export let checked;
+    export let checkEvent;
 
     let checkboxId = `checkbox-${generateId()}`;
 </script>
 
 <div class="custom-checkbox">
-	<input type="checkbox" id={checkboxId} class="hidden-checkbox" bind:checked={checked} />
+	<input type="checkbox" id={checkboxId} class="hidden-checkbox" bind:checked={checked} on:click={checkEvent}/>
 	<label for={checkboxId} class="styled-checkbox" />
 </div>
 

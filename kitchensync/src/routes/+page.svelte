@@ -1,12 +1,69 @@
 <script>
+    import {onMount} from 'svelte';
 	import ListItem from '../components/ListItem.svelte';
 	import { goto } from '$app/navigation';
-    import LockList from '../components/LockList.svelte';
+	import LockList from '../components/LockList.svelte';
+	import { supabase } from '../lib/supabaseClient';
+
+    onMount(async () => {
+        Items = await getData();
+    });
+
+    async function getData() {
+		const { data, error } = await supabase.from('tblListItem').select().eq('ListId', '0ee1f38a-f4bc-11ed-a05b-0242ac120003').eq('isDeleted', 'FALSE');
+
+		if (error) throw new Error(error.message);
+
+		return data;
+	}
+
+    async function sendData(itemText, isChecked) {
+        const { data, error } = await supabase
+        .from('tblListItem')
+        .insert([
+            {'ListId': '0ee1f38a-f4bc-11ed-a05b-0242ac120003', 'ItemText': itemText, 'isChecked': isChecked, 'isDeleted': false}
+        ])
+
+        if (error) {
+            console.log(error.message);
+            throw new Error(error.message);
+        }  
+        return data;
+    }
+
+    async function deleteData(itemId) {
+        let dateNow = new Date();
+
+        const { error } = await supabase 
+        .from('tblListItem')
+        .update([{ 'isDeleted': true, 'DeletedDate': dateNow }])
+        .eq('ItemId', itemId)
+
+        if (error) {
+            console.log(error.message);
+            throw new Error(error.message);
+        }
+    }
+
+    async function updateData(itemId, itemText, isChecked) {
+        console.log("updating record")
+        console.log(itemId)
+        console.log(isChecked)
+        console.log(itemText)
+        const {  error } = await supabase
+        .from('tblListItem')
+        .update([{ 'ItemText': itemText, "isChecked": isChecked }])
+        .eq('ItemId', itemId)
+
+        if(error) {
+            console.log(error.message);
+            throw new Error(error.message);
+        }
+    }
 
 	let listInput = { id: 0, text: '', checked: false };
 	let Items = [];
-	let currentListId = 1;
-    let listLocked = false;
+	let listLocked = false;
 
 	const listKeydown = (event, item) => {
 		if (event.key === 'Enter' || event.keyCode === 13) {
@@ -15,29 +72,22 @@
 	};
 
 	const listEvent = (listItem) => {
-		let listTextInput = listItem == null ? listInput.text: listItem.text;
-		let listIdInput = listItem == null ? currentListId: listItem.id;
-        let listCheckedInput = listItem == null ? listInput.checked: listItem.checked;
+		let listTextInput = listItem == null ? listInput.text : listItem.ItemText;
+		let listIdInput = listItem == null ? 0 : listItem.ItemId;
+		let listCheckedInput = listItem == null ? listInput.checked : listItem.isChecked;
 
 		if (listTextInput.trim() != '') {
 			// This is an existing item
-            let itemToUpdate = Items.find((item) => item.id === listIdInput);
-            if (itemToUpdate) {
-                itemToUpdate.text = listTextInput;
-                itemToUpdate.checked = listCheckedInput;
-            } else {
+			if (listIdInput > 0) {
+				updateData(listIdInput, listTextInput, listCheckedInput);
+			} else {
 				// This is a new item
-				Items = [...Items, { id: currentListId, text: listTextInput, checked: listCheckedInput }];
-				currentListId++;
+                sendData(listTextInput, false);
 			}
 		}
 
 		listInput = { id: 0, text: '', checked: false };
 	};
-
-    function deleteItem(id){
-        Items = Items.filter(item => item.id != id);
-    }
 
 	function createList() {
 		let guid = GenerateGUID();
@@ -53,44 +103,44 @@
 		});
 	}
 
-    const lockClick = () => {
-        listLocked = !listLocked;
-    }
+	const lockClick = () => {
+		listLocked = !listLocked;
+	};
 </script>
 
 <div class="header">
-    <span class="header-text">KitchenSync</span>
-    <div class="locklist-position">
-        <LockList listLocked={listLocked} lockClick={lockClick} hideButton={Items.length == 0} />
-    </div>  
+	<span class="header-text">KitchenSync</span>
+	<div class="locklist-position">
+		<LockList {listLocked} {lockClick} hideButton={Items.length == 0} />
+	</div>
 </div>
 <div class="main-container">
-    <div class="block-centered" style="width:100vw;">
-        <div class="parent-list">
-            <div class="centered-list">
-                {#each Items as item}
-                <ListItem
-                    bind:enteredText={item.text}
-                    bind:checked={item.checked}
-                    handleListEvent={() => listEvent(item)}
-                    handleKeyDownEvent={(event) => listKeydown(event, item)}
-                    handleDelete={() => deleteItem(item.id)}
-                    hideButton={listLocked}
-                    locked={listLocked}
-                />
-            {/each}
-            <ListItem
-                bind:enteredText={listInput.text}
-                bind:checked={listInput.checked}
-                handleListEvent={() => listEvent(null)}
-                handleKeyDownEvent={(event) => listKeydown(event, null)}
-                handleDelete={() => {}}
-                hideButton={true}
-                locked={false}
-            />
-            </div>		
-        </div>
-    </div>
+	<div class="block-centered" style="width:100vw;">
+		<div class="parent-list">
+			<div class="centered-list">
+				{#each Items as item}
+					<ListItem
+						bind:enteredText={item.ItemText}
+						bind:checked={item.isChecked}
+						handleListEvent={() => listEvent(item)}
+						handleKeyDownEvent={(event) => listKeydown(event, item)}
+						handleDelete={() => deleteData(item.ItemId)}
+						hideButton={listLocked}
+						locked={listLocked}
+                        checkEvent={() => updateData(item.ItemId, item.ItemText, !item.isChecked)}
+					/>
+				{/each}
+				<ListItem
+					bind:enteredText={listInput.text}
+					bind:checked={listInput.checked}
+					handleListEvent={() => listEvent(null)}
+					handleKeyDownEvent={(event) => listKeydown(event, null)}
+					handleDelete={() => {}}
+					hideButton={true}
+					locked={false}
+                    checkEvent={() => {}}
+				/>
+			</div>
+		</div>
+	</div>
 </div>
-
-
