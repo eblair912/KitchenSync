@@ -1,69 +1,116 @@
 <script>
-    import {onMount} from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import ListItem from '../components/ListItem.svelte';
 	import { goto } from '$app/navigation';
 	import LockList from '../components/LockList.svelte';
 	import { supabase } from '../lib/supabaseClient';
+    import { GenerateGUID } from '../lib/utils';
 
-    onMount(async () => {
-        Items = await getData();
-    });
+	let TestGuid = '8b1ee23c-f4bc-11ed-a05b-0242ac120003';
 
-    async function getData() {
-		const { data, error } = await supabase.from('tblListItem').select().eq('ListId', '0ee1f38a-f4bc-11ed-a05b-0242ac120003').eq('isDeleted', 'FALSE');
+	let listInput = { id: 0, text: '', checked: false };
+	let Items = [];
+	let listLocked = false;
+
+	onMount(async () => {
+		Items = await getData();
+
+		supabase
+			.channel('table_db_changes')
+			.on(
+				'postgres_changes',
+				{
+					event: 'INSERT',
+					schema: 'public',
+					table: 'tblListItem',
+					filter: `ListId=eq.${TestGuid}`
+				},
+				(payload) => {
+					Items = [...Items, payload.new];
+				}
+			)
+			.on(
+				'postgres_changes',
+				{
+					event: 'UPDATE',
+					schema: 'public',
+					table: 'tblListItem',
+					filter: `ListId=eq.${TestGuid}`
+				},
+				(payload) => {
+					let updated;
+
+					if (payload.new.isDeleted) {
+						updated = Items.filter((item) => item.ItemId !== payload.new.ItemId);
+					} else {
+						updated = Items.map((item) =>
+							item.ItemId === payload.new.ItemId ? payload.new : item
+						);
+					}
+					Items = updated;
+				}
+			)
+			.subscribe();
+	});
+
+	onDestroy(() => {
+		supabase.removeAllChannels();
+	});
+
+	async function getData() {
+		const { data, error } = await supabase
+			.from('tblListItem')
+			.select()
+			.eq('ListId', TestGuid)
+			.eq('isDeleted', 'FALSE');
 
 		if (error) throw new Error(error.message);
 
 		return data;
 	}
 
-    async function sendData(itemText, isChecked) {
-        const { data, error } = await supabase
-        .from('tblListItem')
-        .insert([
-            {'ListId': '0ee1f38a-f4bc-11ed-a05b-0242ac120003', 'ItemText': itemText, 'isChecked': isChecked, 'isDeleted': false}
-        ])
+	async function sendData(itemText, isChecked) {
+		const { data, error } = await supabase.from('tblListItem').insert([
+			{
+				ListId: TestGuid,
+				ItemText: itemText,
+				isChecked: isChecked,
+				isDeleted: false
+			}
+		]);
 
-        if (error) {
-            console.log(error.message);
-            throw new Error(error.message);
-        }  
-        return data;
-    }
+		if (error) {
+			console.log(error.message);
+			throw new Error(error.message);
+		}
+		return data;
+	}
 
-    async function deleteData(itemId) {
-        let dateNow = new Date();
+	async function deleteData(itemId) {
+		let dateNow = new Date();
 
-        const { error } = await supabase 
-        .from('tblListItem')
-        .update([{ 'isDeleted': true, 'DeletedDate': dateNow }])
-        .eq('ItemId', itemId)
+		const { error } = await supabase
+			.from('tblListItem')
+			.update([{ isDeleted: true, DeletedDate: dateNow }])
+			.eq('ItemId', itemId);
 
-        if (error) {
-            console.log(error.message);
-            throw new Error(error.message);
-        }
-    }
+		if (error) {
+			console.log(error.message);
+			throw new Error(error.message);
+		}
+	}
 
-    async function updateData(itemId, itemText, isChecked) {
-        console.log("updating record")
-        console.log(itemId)
-        console.log(isChecked)
-        console.log(itemText)
-        const {  error } = await supabase
-        .from('tblListItem')
-        .update([{ 'ItemText': itemText, "isChecked": isChecked }])
-        .eq('ItemId', itemId)
+	async function updateData(itemId, itemText, isChecked) {
+		const { error } = await supabase
+			.from('tblListItem')
+			.update([{ ItemText: itemText, isChecked: isChecked }])
+			.eq('ItemId', itemId);
 
-        if(error) {
-            console.log(error.message);
-            throw new Error(error.message);
-        }
-    }
-
-	let listInput = { id: 0, text: '', checked: false };
-	let Items = [];
-	let listLocked = false;
+		if (error) {
+			console.log(error.message);
+			throw new Error(error.message);
+		}
+	}
 
 	const listKeydown = (event, item) => {
 		if (event.key === 'Enter' || event.keyCode === 13) {
@@ -82,7 +129,7 @@
 				updateData(listIdInput, listTextInput, listCheckedInput);
 			} else {
 				// This is a new item
-                sendData(listTextInput, false);
+				sendData(listTextInput, false);
 			}
 		}
 
@@ -93,14 +140,6 @@
 		let guid = GenerateGUID();
 		let url = '/?id=';
 		goto(`${url}${guid}`);
-	}
-
-	function GenerateGUID() {
-		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-			var r = (Math.random() * 16) | 0,
-				v = c === 'x' ? r : (r & 0x3) | 0x8;
-			return v.toString(16);
-		});
 	}
 
 	const lockClick = () => {
@@ -118,7 +157,7 @@
 	<div class="block-centered" style="width:100vw;">
 		<div class="parent-list">
 			<div class="centered-list">
-				{#each Items as item}
+				{#each Items as item (item.ItemId)}
 					<ListItem
 						bind:enteredText={item.ItemText}
 						bind:checked={item.isChecked}
@@ -127,7 +166,7 @@
 						handleDelete={() => deleteData(item.ItemId)}
 						hideButton={listLocked}
 						locked={listLocked}
-                        checkEvent={() => updateData(item.ItemId, item.ItemText, !item.isChecked)}
+						checkEvent={() => updateData(item.ItemId, item.ItemText, !item.isChecked)}
 					/>
 				{/each}
 				<ListItem
@@ -138,7 +177,7 @@
 					handleDelete={() => {}}
 					hideButton={true}
 					locked={false}
-                    checkEvent={() => {}}
+					checkEvent={() => {}}
 				/>
 			</div>
 		</div>
