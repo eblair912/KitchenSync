@@ -3,6 +3,8 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public'
 
 export const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY)
 
+
+
 export async function getData(ListGuid) {
     const { data, error } = await supabase
         .from('tblListItem')

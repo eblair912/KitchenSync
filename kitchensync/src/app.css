@@ -28,12 +28,43 @@
     100%{transform: rotate(0deg);}
 }
 
+@keyframes fadeInFadeOut {
+    0% {
+        opacity: 0;
+    }
+    20% {
+        opacity: .7;
+    }
+    80% {
+        opacity: .7;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes slideFromLeft {
+    0% {
+        transform: translateX(90%);
+    }
+}
+
+@keyframes slideToLeft {
+    0% {
+        transform: translateX(-90%);
+    }
+}
+
 body {
     background: var(--main-bg-color);
 }
 
 .header {
   display: flex;
+}
+
+.mobile-header {
+    display: none;
 }
 
 .header-text {
@@ -66,6 +97,7 @@ body {
     background: transparent;
     border: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .lock-button:hover, .share-button:hover {
@@ -188,13 +220,113 @@ body {
     opacity: .6;
 }
 
+.share-list-container {
+    display: flex;
+    align-items: start;
+}
+
+.copied-link {
+    font-family: var(--font-family);
+    font-size: small;
+    font-weight: 500;
+    border: 1px solid darkgreen;
+    border-radius: 5px;
+    background-color: rgba(6, 119, 16, .7);
+    color: white;
+    line-height: 1px;
+    margin-top: 3px;
+    padding: 0 5px;
+    transition: 1s;
+    opacity: 0;
+}
+
+.fade-in-fade-out {
+    animation: fadeInFadeOut 2s;
+}
+
+.menu-icon {
+    opacity: .5;
+}
+
+.header-icon-spacing {
+    display: flex;
+    justify-content: flex-start;
+    align-items: end;
+}
+
+.unclicked-menu {
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: end;
+    animation: slideToLeft .3s;
+}
+
+.slide-open {
+    display: flex;
+    width: 100%;
+    position: absolute;
+    animation: slideFromLeft .5s;
+}
+
+.margin-spacing {
+    margin-bottom: 2rem;
+}
 
 @media (max-width: 750px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .container {
+        max-width: 750px;
+    }
+
+    .header {
+        display: none;
+    }
+      
+    .mobile-header {
+        display: block;
+        position: relative;
+        height: 5rem;
+        overflow: hidden;
+    }
+
+    .header-text {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        font-size: 1.5rem;
+        margin-left: 7px;
+    }
+
+    .main-container {
+        margin-top: 0;
+    }
+
     .list-item-text {
         width: 72vw;
     }
 
-    .main-container {
-        margin-top: 2rem;
+    .share-list-container {
+        position: relative;
+    }
+
+    .copied-link {
+        position: absolute;
+        width: max-content;
+        top: 100%;
+        left: -100%;
+    }
+
+    .lock-button:hover, .share-button:hover {
+        opacity: .4;
+        transform: none;
+    }
+
+    .lock-button:active, .share-button:active {
+        opacity: .7;
+        transform: rotate(5deg);
     }
 }
