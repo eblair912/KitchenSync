@@ -3,6 +3,7 @@
 	import ListItem from '../../components/ListItem.svelte';
 	import LockList from '../../components/LockList.svelte';
     import DeleteList from '../../components/DeleteList.svelte';
+	import ShareList from '../../components/ShareList.svelte';
 	import { supabase, getData, sendData, updateData, deleteData, updateList, getListLocked, deleteList, listExists } from '$lib/supabaseClient';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
@@ -29,10 +30,10 @@
 	});
 
 	onDestroy(() => {
-        if(Items.length == 0 && listId != null) {
-            deleteList(listId);
-            goto("/");
-        }
+        // if(Items.length == 0 && listId != null) {
+        //     deleteList(listId);
+        //     goto("/");
+        // }
 		supabase.removeAllChannels();
 	});
 
@@ -116,6 +117,7 @@
 <div class="header">
 	<span class="header-text">KitchenSync</span>
 	<div class="locklist-position"> 
+		<ShareList hideButton={Items.length == 0} />
 		<LockList {listLocked} lockClick={() => {lockClick()}} hideButton={Items.length == 0} />
         <DeleteList hideButton={Items.length == 0} locked={listLocked} deleteClick={() => {deleteClick()}}/>
 	</div>

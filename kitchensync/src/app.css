@@ -39,7 +39,7 @@ body {
 .header-text {
     color: var(--primary-color);
     font-family: 'Caveat', cursive;
-    font-size: 2rem;
+    font-size: 1.7rem;
     font-weight: 600;
     width: 50%;
     opacity: .6;
@@ -60,12 +60,15 @@ body {
     width: 50%;
 }
 
-.lock-button {
+.lock-button, .share-button {
     opacity: .4;
     transition: .3s;
+    background: transparent;
+    border: none;
+    cursor: pointer;
 }
 
-.lock-button:hover {
+.lock-button:hover, .share-button:hover {
     opacity: .7;
     transform: rotate(5deg);
 }
@@ -185,8 +188,13 @@ body {
     opacity: .6;
 }
 
-.lock-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
+
+@media (max-width: 750px) {
+    .list-item-text {
+        width: 72vw;
+    }
+
+    .main-container {
+        margin-top: 2rem;
+    }
 }
